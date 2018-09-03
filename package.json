@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
-    "// test": "mocha server/**/*.test.js",
-    "test": "mocha --reporter spec --inspect server/**/*.test.js",
+    "// test": "export NODE_ENV=test || set \"NODE_ENV=test\" && mocha server/**/*.test.js",
+    "test": "export NODE_ENV=test || set \"NODE_ENV=test\" && mocha --reporter spec --inspect server/**/*.test.js",
     "test-watch": "nodemon -e test.js --exec \"npm test\""
   },
   "engines": {
