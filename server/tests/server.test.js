@@ -11,7 +11,9 @@ const todos = [{
   text: 'First test todo'
 }, {
   _id: new ObjectID(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333
 }];
 
 // 2) wipe database and insert todos seed data
@@ -40,7 +42,7 @@ describe('GET /todos', () => {
 });
 
 //
-// test GET /todos/id
+// test GET /todos/:id
 //
 describe('GET /todos/:id', () => {
 
@@ -75,7 +77,7 @@ describe('GET /todos/:id', () => {
 describe('POST /todos', () => {
 
   it('should create a new todo', (done) => {
-    var text = 'Test todo text insert via POST /todos';
+    var text = 'todo text inserted via POST /todos';
 
     request(app)
       .post('/todos')
@@ -119,7 +121,7 @@ describe('POST /todos', () => {
 });
 
 //
-// test DELETE /todos/id
+// test DELETE /todos/:id
 //
 describe('DELETE /todos/:id', () => {
 
@@ -154,6 +156,40 @@ describe('DELETE /todos/:id', () => {
     request(app)
       .delete('/todos/123')
       .expect(404)
+      .end(done);
+  });
+});
+
+//
+// test PATCH /todos/:id
+//
+describe('PATCH /todos/:id', () => {
+
+  it('should update and complete todo', (done) => {
+    var text = 'todo text updated via PATCH /todos/:id 1'
+    request(app)
+      .patch(`/todos/${todos[0]._id.toHexString()}`)
+      .send({text, completed: true})
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(typeof res.body.todo.completedAt).toBe('number');
+      })
+      .end(done);
+  });
+
+  it('should uncomplete a completed todo', (done) => {
+    var text = 'todo text updated via PATCH /todos/:id 2'
+    request(app)
+      .patch(`/todos/${todos[1]._id.toHexString()}`)
+      .send({text, completed: false})
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toBeNull();
+      })
       .end(done);
   });
 });
