@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -24,7 +25,7 @@ app.get('/todos', (req, res) => {
 });
 
 //
-// GET /todos/id
+// GET /todos/:id
 //
 app.get('/todos/:id', (req, res) => {
   var id = req.params.id;
@@ -57,7 +58,7 @@ app.post('/todos', (req, res) => {
 });
 
 //
-// DELETE /todos/id
+// DELETE /todos/:id
 //
 app.delete('/todos/:id', (req, res) => {
   var id = req.params.id;
@@ -65,6 +66,32 @@ app.delete('/todos/:id', (req, res) => {
     res.status(404).send({error: 'Invalid id'});
   }
   Todo.findByIdAndDelete(id).then((todo) => {
+    if (!todo) {
+      res.status(404).send({error: 'Id not found'});
+    }
+    res.status(200).send({todo});
+  }).catch((e) => res.status(400).send());
+});
+
+//
+// PATCH /todos/:id
+//
+app.patch('/todos/:id', (req, res) => {
+  var id = req.params.id;
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(id)) {
+    res.status(404).send({error: 'Invalid id'});
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = Date.now();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       res.status(404).send({error: 'Id not found'});
     }
