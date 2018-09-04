@@ -124,8 +124,8 @@ app.post('/users', (req, res) => {
 // GET /users/me
 //
 app.get('/users/me', authenticate, (req, res) => {
-  var user = req.user;
-  res.send({user}); // won't send res.send({req.user}) for some reason
+  //var user = req.user;
+  res.send({user: req.user}); // won't send res.send({req.user}) for some reason
 });
 
 //
