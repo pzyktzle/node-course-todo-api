@@ -9,6 +9,7 @@ const {mongoose} = require('./db/mongoose');
 
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+const {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 const port = process.env.PORT;
@@ -119,6 +120,17 @@ app.post('/users', (req, res) => {
 
 });
 
+//
+// GET /users/me
+//
+app.get('/users/me', authenticate, (req, res) => {
+  var user = req.user;
+  res.send({user}); // won't send res.send({req.user}) for some reason
+});
+
+//
+// finish up
+//
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });

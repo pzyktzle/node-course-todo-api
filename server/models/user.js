@@ -34,8 +34,10 @@ var UserSchema = new mongoose.Schema({
   }]
 });
 
+//
 // Schema.methods stores instance methods for a schema (var user = new User(data))
 // arrow functions do not bind a 'this' keyword so function () {} is required
+//
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
@@ -50,11 +52,35 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
+//
+// UserSchema.statics stores model methods for a schema (User.someMethod())
+//
+UserSchema.statics.findByToken = function (token) {
+  var User = this; // binds to the whole collection
+  var decoded;
+
+  try {
+    decoded = jwt.verify(token, 'someSecretSalt');
+  } catch (e) {
+    // return new Promise((resolve, reject) => {
+    //   reject();
+    // });
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    _id: decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+};
+
+//
+// overrides the mongoose built-in method
+//
 UserSchema.methods.toJSON = function () {
   var user = this;
-  console.log(user);
   var userObject = user.toObject();
-  console.log(userObject);
 
   return _.pick(userObject, ['_id', 'email']);
 };
