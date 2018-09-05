@@ -47,7 +47,7 @@ UserSchema.methods.generateAuthToken = function () {
   // user.tokens.push({access, token});
   user.tokens = user.tokens.concat([{access, token}]);
 
-  // return user.save().then promise unfired and requiring then() to be called before returning token
+  // return "user.save().then" promise unfired and requiring then() to be called before returning token
   return user.save().then(() => {
     return token;
   });
@@ -78,18 +78,20 @@ UserSchema.statics.findByToken = function (token) {
 
 //
 // overrides the mongoose built-in method
+// every time a user is converted to JSON, only provide the _id and email properties
 //
 UserSchema.methods.toJSON = function () {
   var user = this;
-  var userObject = user.toObject();
+  var userObject = user.toObject(); // wash away db storage structure and convert to a Javascript object
 
   return _.pick(userObject, ['_id', 'email']);
 };
 
 //
-// mongoose middleware function pre
+// mongoose middleware function pre()
+// (fires before the 'save' event on User)
 //
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
   var user = this;
 
   if (user.isModified('password')) {
@@ -104,6 +106,8 @@ UserSchema.pre('save', function(next) {
   }
 });
 
+//
+// create the User model from UserSchema and export it
+//
 var User = mongoose.model('User', UserSchema);
-
 module.exports = {User};

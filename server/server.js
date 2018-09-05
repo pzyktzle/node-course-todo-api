@@ -112,7 +112,7 @@ app.post('/users', (req, res) => {
   user.save().then(() => {
     return user.generateAuthToken();
   }).then((token) => {
-    res.header('x-auth', token).send({user});
+    res.status(200).header('x-auth', token).send({user});
   }).catch((e) => {
     res.status(400).send(e);
   });
@@ -124,7 +124,6 @@ app.post('/users', (req, res) => {
 // GET /users/me
 //
 app.get('/users/me', authenticate, (req, res) => {
-  //var user = req.user;
   res.send({user: req.user}); // won't send res.send({req.user}) for some reason
 });
 
