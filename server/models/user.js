@@ -66,13 +66,35 @@ UserSchema.statics.findByToken = function (token) {
     // return new Promise((resolve, reject) => {
     //   reject();
     // });
-    return Promise.reject();
+    return Promise.reject(); // caught in calling methods .catch()
   }
 
   return User.findOne({
     _id: decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'
+  });
+};
+
+//
+// Model method findByCredentials
+//
+UserSchema.statics.findByCredentials = function (email, password) {
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject(); // caught in calling methods .catch()
+    }
+
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (err) {
+          return reject(err); // caught in calling methods .catch()
+        }
+        return res ? resolve(user) : reject();
+      });
+    });
   });
 };
 
