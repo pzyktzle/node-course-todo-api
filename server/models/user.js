@@ -110,6 +110,19 @@ UserSchema.methods.toJSON = function () {
 };
 
 //
+//
+//
+UserSchema.methods.removeToken = function (token) {
+  var user = this;
+
+  return user.update({
+    $pull: {
+      tokens: { token: token }
+    }
+  });
+};
+
+//
 // mongoose middleware function pre()
 // (fires before the 'save' event on User)
 //

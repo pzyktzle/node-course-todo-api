@@ -141,6 +141,17 @@ app.post('/users/login', (req, res) => {
 });
 
 //
+// DELETE /users/me/token
+//
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send({message: 'logout successful'});
+  }, () => {
+    res.status(400).send({error: 'logout failed: token not removed'});
+  });
+});
+
+//
 // finish up
 //
 app.listen(port, () => {
