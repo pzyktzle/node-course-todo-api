@@ -4,16 +4,6 @@ const jwt = require('jsonwebtoken');
 const {Todo} = require('./../../models/todo');
 const {User} = require('./../../models/user');
 
-// seed todo data
-const todos = [{
-  _id: new ObjectID(),
-  text: 'First test todo'
-}, {
-  _id: new ObjectID(),
-  text: 'Second test todo',
-  completed: true,
-  completedAt: 333
-}];
 
 // create user ids
 const userOneId = new ObjectID();
@@ -31,17 +21,26 @@ const users = [{
 }, {
   _id: userTwoId,
   email: 'agey@example2.com',
-  password: 'userTwoPassword'
+  password: 'userTwoPassword',
+  tokens: [{
+    access: 'auth',
+    token: jwt.sign({_id: userTwoId.toHexString(), access: 'auth'}, 'someSecretSalt').toString()
+  }]
 }];
 
-// wipe database and insert todos seed data
-const populateTodos = (done) => {
-  Todo.deleteMany({})
-    .then(() => {
-      return Todo.insertMany(todos);
-    })
-    .then(() => done());
-};
+// seed todo data
+const todos = [{
+  _id: new ObjectID(),
+  text: 'First test todo',
+  _creator: userOneId
+}, {
+  _id: new ObjectID(),
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333,
+  _creator: userTwoId
+}];
+
 
 // wipe database and insert users seed data
 const populateUsers = (done) => {
@@ -55,6 +54,15 @@ const populateUsers = (done) => {
       return Promise.all([userOne, userTwo]);
 
     }).then(() => done());
+};
+
+// wipe database and insert todos seed data
+const populateTodos = (done) => {
+  Todo.deleteMany({})
+    .then(() => {
+      return Todo.insertMany(todos);
+    })
+    .then(() => done());
 };
 
 module.exports = {
